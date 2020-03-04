@@ -97,7 +97,7 @@ client.on('message', msg => {
                                 msg.member.roles.add(role);
                                 msg.react('👍');
 
-                                console.log('Succesfully assigned the "Runner" role to + ' realDiscordHandle + '!');
+                                console.log('Succesfully assigned the "Runner" role to ' + realDiscordHandle + '!');
 
                             // no SMO runs found error
                             } else {
