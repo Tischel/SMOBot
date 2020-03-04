@@ -1,0 +1,13 @@
+{
+    "name": "SMOBot",
+    "version": "0.0.1",
+    "description": "SMO Speedruning Discord bot",
+    "main": "bot.js",
+    "author": "Tischel",
+    "scripts": {
+        "start": "node bot.js"
+    },
+    "dependencies": {
+        "discord.js": "^12.0.1"
+    }
+}
