@@ -30,8 +30,8 @@ client.on('ready', () => {
 
 client.on('message', msg => {
 
-    // only operate the get-role channel
-    if (msg.channel.name !== 'vip') {
+    // only operate the role-assign channel
+    if (msg.channel.name !== 'role-assign') {
         return;
     }
 
@@ -97,16 +97,22 @@ client.on('message', msg => {
                                 msg.member.roles.add(role);
                                 msg.react('👍');
 
+                                console.log('Succesfully assigned the "Runner" role to + ' realDiscordHandle + '!');
+
                             // no SMO runs found error
                             } else {
                                 msg.author.send('We couldn\'t find a Super Mario Odyssey run in your speedrun.com profile. If you\'re sure you are eligible for the "Runner" role, please contact a moderator.');
                                 msg.delete();
+
+                                console.log(realDiscordHandle + ' tried to get the "Runner" role, but they didn\'t have any SMO runs');
                             }
 
                         // no runs in response error
                         } else {
                             msg.author.send('There was a problem fetching your runs from speedrun.com. Please try again later.')
                             msg.delete();
+
+                            console.log('Error getting runs from speedrun.com for ' + realDiscordHandle);
                         }
                     });
 
@@ -114,6 +120,8 @@ client.on('message', msg => {
                 } else {
                     msg.author.send('The speedrun.com username is invalid! Please make sure the user name was correct and try again.')
                     msg.delete();
+
+                    console.log('Error getting profile from speedrun.com for ' + realDiscordHandle);
                 }
             });
 
@@ -121,6 +129,8 @@ client.on('message', msg => {
         } else {
             msg.author.send('The given speedrun.com user does not have a Discord account linked in their profile, or it doesn\'t match.');
             msg.delete();
+
+            console.log(realDiscordHandle + ' has "' + discordHandle + '" as their discord handle in speedrun.com, and doesn\'t match.');
         }
     });
 });
