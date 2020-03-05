@@ -69,66 +69,63 @@ client.on('message', msg => {
             // get src profile from API
             getSrcProfile(srcName, srcId => {
 
-                if (srcId != null) {
-
-                    // get src PBs from API
-                    getSrcPBs(srcId, runs => {
-
-                        if (runs != null) {
-                            var shouldGiveRole = false;
-
-                            for (const runData of runs) {
-                                const run = runData["run"];
-
-                                if (run != null) {
-                                    // ignore ILs
-                                    const level = run["level"];
-                                    if (level != null) {
-                                        continue;
-                                    }
-
-                                    // check if for SMO and category extensions
-                                    const game = run["game"];
-
-                                    if (game.localeCompare('76r55vd8') == 0 ||
-                                        game.localeCompare('m1mxxw46') == 0) {
-                                        shouldGiveRole = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            // give role
-                            if (shouldGiveRole) {
-                                msg.member.roles.add(role);
-                                msg.react('👍');
-
-                                console.log('Succesfully assigned the "Runner" role to ' + realDiscordHandle + '!');
-
-                            // no SMO runs found error
-                            } else {
-                                msg.author.send('We couldn\'t find a Super Mario Odyssey run in your speedrun.com profile. If you\'re sure you are eligible for the "Runner" role, please contact a moderator.');
-                                msg.delete();
-
-                                console.log(realDiscordHandle + ' tried to get the "Runner" role, but they didn\'t have any SMO runs');
-                            }
-
-                        // no runs in response error
-                        } else {
-                            msg.author.send('There was a problem fetching your runs from speedrun.com. Please try again later.')
-                            msg.delete();
-
-                            console.log('Error getting runs from speedrun.com for ' + realDiscordHandle);
-                        }
-                    });
-
                 // profile response error
-                } else {
+                if (srcId == null) {
                     msg.author.send('The speedrun.com username is invalid! Please make sure the user name was correct and try again.')
                     msg.delete();
 
                     console.log('Error getting profile from speedrun.com for ' + realDiscordHandle);
                 }
+
+                // get src PBs from API
+                getSrcPBs(srcId, runs => {
+
+                    // no runs in response error
+                    if (runs == null) {
+                        msg.author.send('There was a problem fetching your runs from speedrun.com. Please try again later.')
+                        msg.delete();
+
+                        console.log('Error getting runs from speedrun.com for ' + realDiscordHandle);
+                    }
+
+                    var shouldGiveRole = false;
+
+                    for (const runData of runs) {
+                        const run = runData["run"];
+
+                        if (run != null) {
+                            // ignore ILs
+                            const level = run["level"];
+                            if (level != null) {
+                                continue;
+                            }
+
+                            // check if for SMO and category extensions
+                            const game = run["game"];
+
+                            if (game.localeCompare('76r55vd8') == 0 ||
+                                game.localeCompare('m1mxxw46') == 0) {
+                                shouldGiveRole = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // give role
+                    if (shouldGiveRole) {
+                        msg.member.roles.add(role);
+                        msg.react('👍');
+
+                        console.log('Succesfully assigned the "Runner" role to ' + realDiscordHandle + '!');
+
+                    // no SMO runs found error
+                    } else {
+                        msg.author.send('We couldn\'t find a Super Mario Odyssey run in your speedrun.com profile. If you\'re sure you are eligible for the "Runner" role, please contact a moderator.');
+                        msg.delete();
+
+                        console.log(realDiscordHandle + ' tried to get the "Runner" role, but they didn\'t have any SMO runs');
+                    }
+                });
             });
 
         // discord handle error
