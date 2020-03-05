@@ -81,9 +81,15 @@ client.on('message', msg => {
                                 const run = runData["run"];
 
                                 if (run != null) {
-                                    const game = run["game"];
+                                    // ignore ILs
+                                    const level = run["level"];
+                                    if (level != null) {
+                                        continue;
+                                    }
 
                                     // check if for SMO and category extensions
+                                    const game = run["game"];
+
                                     if (game.localeCompare('76r55vd8') == 0 ||
                                         game.localeCompare('m1mxxw46') == 0) {
                                         shouldGiveRole = true;
