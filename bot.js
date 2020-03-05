@@ -62,79 +62,79 @@ client.on('message', msg => {
     getDiscordHandle(srcName, discordHandle => {
 
         // compare discord handles
-        const realDiscordHandle = (msg.author.username + "#" + msg.author.discriminator).toUpperCase();
+        const realDiscordHandle = (msg.author.username + "#" + msg.author.discriminator);
 
-        if (discordHandle.localeCompare(realDiscordHandle) == 0) {
-
-            // get src profile from API
-            getSrcProfile(srcName, srcId => {
-
-                // profile response error
-                if (srcId == null) {
-                    msg.author.send('The speedrun.com username is invalid! Please make sure the user name was correct and try again.')
-                    msg.delete();
-
-                    console.log('Error getting profile from speedrun.com for ' + realDiscordHandle);
-                }
-
-                // get src PBs from API
-                getSrcPBs(srcId, runs => {
-
-                    // no runs in response error
-                    if (runs == null) {
-                        msg.author.send('There was a problem fetching your runs from speedrun.com. Please try again later.')
-                        msg.delete();
-
-                        console.log('Error getting runs from speedrun.com for ' + realDiscordHandle);
-                    }
-
-                    var shouldGiveRole = false;
-
-                    for (const runData of runs) {
-                        const run = runData["run"];
-
-                        if (run != null) {
-                            // ignore ILs
-                            const level = run["level"];
-                            if (level != null) {
-                                continue;
-                            }
-
-                            // check if for SMO and category extensions
-                            const game = run["game"];
-
-                            if (game.localeCompare('76r55vd8') == 0 ||
-                                game.localeCompare('m1mxxw46') == 0) {
-                                shouldGiveRole = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    // give role
-                    if (shouldGiveRole) {
-                        msg.member.roles.add(role);
-                        msg.react('👍');
-
-                        console.log('Succesfully assigned the "Runner" role to ' + realDiscordHandle + '!');
-
-                    // no SMO runs found error
-                    } else {
-                        msg.author.send('We couldn\'t find a Super Mario Odyssey run in your speedrun.com profile. If you\'re sure you are eligible for the "Runner" role, please contact a moderator.');
-                        msg.delete();
-
-                        console.log(realDiscordHandle + ' tried to get the "Runner" role, but they didn\'t have any SMO runs');
-                    }
-                });
-            });
-
-        // discord handle error
-        } else {
+        if (discordHandle.localeCompare(realDiscordHandle) != 0) {
             msg.author.send('The given speedrun.com user does not have a Discord account linked in their profile, or it doesn\'t match.');
             msg.delete();
 
             console.log(realDiscordHandle + ' has "' + discordHandle + '" as their discord handle in speedrun.com, and doesn\'t match.');
+            return;
         }
+
+        // get src profile from API
+        getSrcProfile(srcName, srcId => {
+
+            // profile response error
+            if (srcId == null) {
+                msg.author.send('The speedrun.com username is invalid! Please make sure the user name was correct and try again.')
+                msg.delete();
+
+                console.log('Error getting profile from speedrun.com for ' + realDiscordHandle);
+                return;
+            }
+
+            // get src PBs from API
+            getSrcPBs(srcId, runs => {
+
+                // no runs in response error
+                if (runs == null) {
+                    msg.author.send('There was a problem fetching your runs from speedrun.com. Please try again later.')
+                    msg.delete();
+
+                    console.log('Error getting runs from speedrun.com for ' + realDiscordHandle);
+                    return;
+                }
+
+                var shouldGiveRole = false;
+
+                for (const runData of runs) {
+                    const run = runData["run"];
+
+                    if (run != null) {
+                        // ignore ILs
+                        const level = run["level"];
+                        if (level != null) {
+                            continue;
+                        }
+
+                        // check if for SMO and category extensions
+                        const game = run["game"];
+
+                        if (game.localeCompare('76r55vd8') == 0 ||
+                            game.localeCompare('m1mxxw46') == 0) {
+                            shouldGiveRole = true;
+                            break;
+                        }
+                    }
+                }
+
+                // give role
+                if (shouldGiveRole) {
+                    msg.member.roles.add(role);
+                    msg.react('👍');
+
+                    console.log('Succesfully assigned the "Runner" role to ' + realDiscordHandle + '!');
+
+                // no SMO runs found error
+                } else {
+                    msg.author.send('We couldn\'t find a Super Mario Odyssey run in your speedrun.com profile. If you\'re sure you are eligible for the "Runner" role, please contact a moderator.');
+                    msg.delete();
+
+                    console.log(realDiscordHandle + ' tried to get the "Runner" role, but they didn\'t have any SMO runs');
+                }
+            });
+        });
     });
 });
 
@@ -158,7 +158,7 @@ function getDiscordHandle(srcName, completion) {
         res.on('end', () => {
             const regex = /(?<=data-id=")(.*?#....)/g;
             const match = data.match(regex);
-            const result = match != null ? match[0].toUpperCase() : "";
+            const result = match != null ? match[0] : "";
 
             completion(result);
         });
