@@ -171,55 +171,38 @@ function getDiscordHandle(srcName, completion) {
 
 function getSrcProfile(srcName, completion) {
     // get profile from API
-    const profileOptions = {
+    const redirectOptions = {
         hostname: 'www.speedrun.com',
         port: 443,
-        path: '/api/v1/users?name=' + srcName,
+        path: '/api/v1/users/' + srcName,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
         }
     }
 
-    const profileRequest = https.request(profileOptions, r => {
+    const redirectRequest = https.request(redirectOptions, r => {
         let data = '';
         r.on('data', (chunk) => {
             data += chunk;
         });
 
         r.on('end', () => {
-            const json = JSON.parse(data);
-            let error = false;
+            const regex = /(?<=users\/)(.*?)"/g;
+            const match = data.match(regex);
+            const id = match != null ? match[0].substring(0, match[0].length - 1) : null;
 
-            if (json["data"] != null && Array.isArray(json["data"])) {
-                const user = json["data"][0];
-                const names = user["names"];
-                const id = user["id"];
-
-                let srcRealName = "";
-                if (names != null && names["international"] != null) {
-                    srcRealName = names["international"].toUpperCase();
-                }
-                
-                // validate speedrun.com name
-                if (id != null && srcName.toUpperCase().localeCompare(srcRealName) == 0) {
-                    completion(id)
-                } else {
-                    completion(null)
-                }
-            } else {
-                completion(null);
-            }
+            completion(id);
         });
 
     });
 
     // request error
-    profileRequest.on('error', error => {
+    redirectRequest.on('error', error => {
         completion(null);
     });
 
-    profileRequest.end();
+    redirectRequest.end();
 }
 
 function getSrcPBs(srcId, completion) {
