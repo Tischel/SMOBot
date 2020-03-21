@@ -145,7 +145,7 @@ function getDiscordHandle(srcName, completion) {
     const profilePageOptions = {
         hostname: 'www.speedrun.com',
         port: 443,
-        path: '/user/' + srcName,
+        path: '/user/' + encodeURIComponent(srcName),
         method: 'GET'
     }
 
@@ -177,7 +177,7 @@ function getSrcProfile(srcName, completion) {
     const redirectOptions = {
         hostname: 'www.speedrun.com',
         port: 443,
-        path: '/api/v1/users/' + srcName,
+        path: '/api/v1/users/' + encodeURIComponent(srcName),
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
