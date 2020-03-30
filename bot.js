@@ -110,9 +110,10 @@ client.on('message', msg => {
 
                         // check if for SMO and category extensions
                         const game = run["game"];
+                        const category = run["category"];
 
                         if (game.localeCompare('76r55vd8') == 0 ||
-                            game.localeCompare('m1mxxw46') == 0) {
+                            (game.localeCompare('m1mxxw46') == 0 && category.localeCompare('7kjp3wzk') != 0)) {
                             shouldGiveRole = true;
                             break;
                         }
