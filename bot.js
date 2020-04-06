@@ -111,7 +111,7 @@ client.on('message', msg => {
                         // check if for SMO and category extensions
                         const game = run["game"];
                         const category = run["category"];
-                        const disallowed_categories = ['7kjp3wzk','w20g9qvk','7dgrvqpk','jdz8olgd','wdmxvyek','9d84we7k']
+                        const disallowed_categories = ['7kjp3wzk','w20g9qvk','7dgrvqpk','jdz8olgd','wdmxvyek','9d84we7k','02q3zeyk']
                         
                         if (game.localeCompare('76r55vd8') == 0 ||
                             (game.localeCompare('m1mxxw46') == 0 && disallowed_categories.indexOf(category) == -1)) {
