@@ -7,7 +7,7 @@ let role = null;
 client.on('ready', () => {
     console.log('Logged in as ${client.user.tag}!');
 
-    // find "Runner" role
+    
     let guild = null;
     for (const guildId of client.guilds.cache.keys()) {
         guild = client.guilds.cache.get(guildId);
@@ -15,6 +15,7 @@ client.on('ready', () => {
     }
 
     if (guild) {
+        // find "Runner" role
         guild.roles.fetch()
             .then(roles => {
                 for (const roleId of roles.cache.keys()) {
@@ -25,15 +26,47 @@ client.on('ready', () => {
                     }
                 }
             });
+
+        // find runner-voting channel
+        for (const channelId of guild.channels.cache.keys()) {
+            const channel = guild.channels.cache.get(channelId)
+            if (channel.name.localeCompare("runner-voting") == 0) {
+                reactToOldMessagesIn(channel)
+                break;
+            }
+        }
     }
 });
 
 client.on('message', msg => {
-
-    // only operate the role-assign channel
-    if (msg.channel.name !== 'role-assign') {
+    // role-assign channel
+    if (msg.channel.name == 'role-assign') {
+        handleRoleMessage(msg);
         return;
     }
+});
+
+client.on('messageReactionAdd', async (reaction, user) => {
+
+    // fetch message
+    if (reaction.partial) {
+        try {
+            await reaction.fetch();
+        } catch (error) {
+            console.log('Something went wrong when fetching the message: ', error);
+            return;
+        }
+    }
+
+    // runner-voting channel
+    if (reaction.message.channel.name == 'vip') {
+        handleVoteReaction(reaction);
+    }
+});
+
+client.login(process.env.BOT_TOKEN);
+
+function handleRoleMessage(msg) {
 
     // only !role command available
     if (!msg.content.startsWith('!role')) {
@@ -143,9 +176,44 @@ client.on('message', msg => {
             });
         });
     });
-});
+}
 
-client.login(process.env.BOT_TOKEN);
+function handleVoteReaction(reaction) {
+
+    // adds +1 on new reactions
+    if (reaction.me == false) {
+        reaction.message.react(reaction.emoji)
+    }
+}
+
+function reactToOldMessagesIn(channel) {
+    // finds messages in the channel and adds +1 on existing reactions
+
+    channel.messages.fetch()
+        .then(messages => {
+
+            for (const messageData of messages) { 
+                try {
+                    let msg = messageData[1]
+
+                    for (const reactionData of msg.reactions.cache) {
+                        let reaction = reactionData[1]
+
+                        if (reaction.me == false) {
+                            msg.react(reaction.emoji)
+                        };
+                    }
+                } catch (error) {
+                    console.log("Error trying to react to message " + messageData);
+                    console.log(error);
+                }
+            }
+        })
+        .catch(error => {
+            console.log("Error when fetching messages from channel #" + channel.name + ":");
+            console.log(error);
+        });
+}
 
 function getDiscordHandle(srcName, completion) {
     // make request to profile page
