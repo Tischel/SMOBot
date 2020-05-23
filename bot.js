@@ -20,7 +20,7 @@ client.on('ready', () => {
             .then(roles => {
                 for (const roleId of roles.cache.keys()) {
                     const r = roles.cache.get(roleId);
-                    if (r.name.localeCompare("Runner") == 0) {
+                    if (r.name.localeCompare(process.env.ROLE_NAME) == 0) {
                         role = r;
                         break;
                     }
@@ -30,7 +30,7 @@ client.on('ready', () => {
         // find runner-voting channel
         for (const channelId of guild.channels.cache.keys()) {
             const channel = guild.channels.cache.get(channelId)
-            if (channel.name.localeCompare("runner-voting") == 0) {
+            if (channel.name.localeCompare(process.env.RUNNER_VOTING_CHANNEL) == 0) {
                 reactToOldMessagesIn(channel)
                 break;
             }
@@ -40,7 +40,7 @@ client.on('ready', () => {
 
 client.on('message', msg => {
     // role-assign channel
-    if (msg.channel.name == 'role-assign') {
+    if (msg.channel.name == process.env.ROLE_ASSIGN_CHANNEL) {
         handleRoleMessage(msg);
         return;
     }
@@ -59,7 +59,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     }
 
     // runner-voting channel
-    if (reaction.message.channel.name == 'vip') {
+    if (reaction.message.channel.name == process.env.RUNNER_VOTING_CHANNEL) {
         handleVoteReaction(reaction);
     }
 });
@@ -151,8 +151,8 @@ function handleRoleMessage(msg) {
                             disallowed_categories = disallowed_categories_str.split(",")
                         }
                         
-                        if (game.localeCompare('76r55vd8') == 0 ||
-                            (game.localeCompare('m1mxxw46') == 0 && disallowed_categories.indexOf(category) == -1)) {
+                        if (game.localeCompare(process.env.SMO_ID) == 0 ||
+                            (game.localeCompare(process.env.SMO_CE_ID) == 0 && disallowed_categories.indexOf(category) == -1)) {
                             shouldGiveRole = true;
                             break;
                         }
