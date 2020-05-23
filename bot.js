@@ -5,7 +5,7 @@ const https = require('https')
 let role = null;
 
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    console.log('Logged in as ${client.user.tag}!');
 
     // find "Runner" role
     let guild = null;
@@ -111,7 +111,12 @@ client.on('message', msg => {
                         // check if for SMO and category extensions
                         const game = run["game"];
                         const category = run["category"];
-                        const disallowed_categories = ['7kjp3wzk','w20g9qvk','7dgrvqpk','jdz8olgd','wdmxvyek','9d84we7k','02q3zeyk','xd1g8zrd']
+
+                        const disallowed_categories_str = process.env.DISALLOWED_CATEGORIES
+                        let disallowed_categories = []
+                        if (disallowed_categories_str != null) {
+                            disallowed_categories = disallowed_categories_str.split(",")
+                        }
                         
                         if (game.localeCompare('76r55vd8') == 0 ||
                             (game.localeCompare('m1mxxw46') == 0 && disallowed_categories.indexOf(category) == -1)) {
