@@ -27,7 +27,7 @@ client.on('ready', () => {
                 }
             });
 
-        // find runner-voting channel
+        // find runner-voting channel and race-voting
         for (const channelId of guild.channels.cache.keys()) {
             const channel = guild.channels.cache.get(channelId)
             if (channel.name.localeCompare(process.env.RUNNER_VOTING_CHANNEL) == 0 || channel.name.localeCompare(process.env.RACE_VOTING_CHANNEL) == 0) {
@@ -59,6 +59,11 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
     // runner-voting channel
     if (reaction.message.channel.name == process.env.RUNNER_VOTING_CHANNEL) {
+        handleVoteReaction(reaction);
+    }
+
+    // race-voting channel
+    if (reaction.message.channel.name == process.env.RACE_VOTING_CHANNEL) {
         handleVoteReaction(reaction);
     }
 });
