@@ -32,7 +32,6 @@ client.on('ready', () => {
             const channel = guild.channels.cache.get(channelId)
             if (channel.name.localeCompare(process.env.RUNNER_VOTING_CHANNEL) == 0 || channel.name.localeCompare(process.env.RACE_VOTING_CHANNEL) == 0) {
                 reactToOldMessagesIn(channel)
-                break;
             }
         }
     }
