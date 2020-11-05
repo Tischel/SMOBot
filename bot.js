@@ -30,7 +30,7 @@ client.on('ready', () => {
         // find runner-voting channel
         for (const channelId of guild.channels.cache.keys()) {
             const channel = guild.channels.cache.get(channelId)
-            if (channel.name.localeCompare(process.env.RUNNER_VOTING_CHANNEL) == 0) {
+            if (channel.name.localeCompare(process.env.RUNNER_VOTING_CHANNEL) == 0) || (channel.name.localeCompare(process.env.RACE_VOTING_CHANNEL) {
                 reactToOldMessagesIn(channel)
                 break;
             }
