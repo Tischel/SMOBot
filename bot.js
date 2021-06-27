@@ -1,11 +1,18 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const https = require('https')
+const https = require('https');
+const fs = require('fs');
+const random_string = require('@supercharge/strings');
+require('dotenv').config();
 
 let role = null;
 
+const reset_counted_users = {
+    "users": []
+}
+
 client.on('ready', () => {
-    console.log('Logged in as ${client.user.tag}!');
+    console.log(`Logged in as ${client.user.tag}!`);
 
     
     let guild = null;
@@ -43,6 +50,11 @@ client.on('message', msg => {
         handleRoleMessage(msg);
         return;
     }
+
+    if (msg.channel.name == process.env.MANAGE_BOT_CHANNEL) {
+        handleManageBot(msg);
+        return;
+    }
 });
 
 client.on('messageReactionAdd', async (reaction, user) => {
@@ -60,6 +72,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     // runner-voting channel
     if (reaction.message.channel.name == process.env.RUNNER_VOTING_CHANNEL) {
         handleVoteReaction(reaction);
+        generate_one_time(user);
     }
 
     // race-voting channel
@@ -69,6 +82,44 @@ client.on('messageReactionAdd', async (reaction, user) => {
 });
 
 client.login(process.env.BOT_TOKEN);
+
+// Manage the counted_users file in Discord
+function handleManageBot(msg) {
+    if (msg.content.startsWith("!clear")) {
+        fs.writeFileSync("counted_users.json", JSON.stringify(reset_counted_users, null, 2));
+        msg.react('👍');
+
+        return;
+    }
+
+    if (msg.content.startsWith("!dump")) {
+        msg.channel.send(new Discord.MessageAttachment('counted_users.json', 'users.json'));
+        return;
+    }
+}
+
+// Send the code to the user if the user has not gotten it already
+function generate_one_time(user) {
+    let counted = JSON.parse(fs.readFileSync("counted_users.json"));
+    if (user == client.user) { return; }
+    let code = generate_code();
+    for (var i = 0; i < counted["users"].length; i++) {
+        if (counted["users"][i]["code"] == code) { code = generate_code(); } // If the codes somehow match
+        if (counted["users"][i]["id"] == user.id) { return; } // If the user has already gotten a code, don't give it again
+    }
+    console.log(user.username + "#" + user.discriminator);
+    user.send("Your One-Time code: `" + code + "`");
+    let new_count = {
+        "id": user.id,
+        "code": code,
+        "discord_username": user.username + "#" + user.discriminator
+    };
+    counted["users"].push(new_count);
+    fs.writeFileSync("counted_users.json", JSON.stringify(counted, null, 2));
+}
+
+// Randomly create a 16-character string to act as a passcode
+function generate_code() { return random_string.random(16); }
 
 function handleRoleMessage(msg) {
 
