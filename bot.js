@@ -7,6 +7,7 @@ const random_string = require('@supercharge/strings');
 let role = null;
 
 const reset_counted_users = {
+    "isLocked": true,
     "users": []
 }
 
@@ -95,11 +96,29 @@ function handleManageBot(msg) {
         msg.channel.send(new Discord.MessageAttachment('counted_users.json', 'users.json'));
         return;
     }
+
+    if (msg.content.startsWith("!lock")) {
+        let file = JSON.parse(fs.readFileSync("counted_users.json"));
+
+        file["isLocked"] = !file["isLocked"];
+
+        if (file["isLocked"]) {
+            msg.channel.send("Voting has been locked. No codes will be handed out.")
+        } else {
+            msg.channel.send("Voting has been unlocked. Codes will be handed out.")
+        }
+        fs.writeFileSync("counted_users.json", JSON.stringify(file, null, 2));
+        msg.react('👍');
+        return;
+    }
 }
 
 // Send the code to the user if the user has not gotten it already
 function generate_one_time(user) {
     let counted = JSON.parse(fs.readFileSync("counted_users.json"));
+
+    if (counted["isLocked"]) { return; }
+
     if (user == client.user) { return; }
     let code = generate_code();
     for (var i = 0; i < counted["users"].length; i++) {
