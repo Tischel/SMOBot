@@ -3,7 +3,6 @@ const client = new Discord.Client();
 const https = require('https');
 const fs = require('fs');
 const random_string = require('@supercharge/strings');
-require('dotenv').config();
 
 let role = null;
 
@@ -107,7 +106,7 @@ function generate_one_time(user) {
         if (counted["users"][i]["code"] == code) { code = generate_code(); } // If the codes somehow match
         if (counted["users"][i]["id"] == user.id) { return; } // If the user has already gotten a code, don't give it again
     }
-    console.log(user.username + "#" + user.discriminator);
+    console.log(user.username + "#" + user.discriminator + " has been given the code: " + code);
     user.send("Your One-Time code: `" + code + "`");
     let new_count = {
         "id": user.id,
