@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
-const client = new Discord.Client();
+let Intss = new Discord.Intents(Discord.Intents.NON_PRIVILEGED);
+const client = new Discord.Client({ws: { intents: Intss }});
 const https = require('https');
 const fs = require('fs');
 const random_string = require('@supercharge/strings');
@@ -121,6 +122,8 @@ function handleManageBot(msg) {
 
         msg.react('👍');
         generate_one_time(user);
+
+        return;
     }
 }
 
