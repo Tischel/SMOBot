@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-let Intss = new Discord.Intents(Discord.Intents.NON_PRIVILEGED);
+let Intss = new Discord.Intents(Discord.Intents.ALL);
 const client = new Discord.Client({ws: { intents: Intss }});
 const https = require('https');
 const fs = require('fs');
