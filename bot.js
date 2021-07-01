@@ -111,6 +111,17 @@ function handleManageBot(msg) {
         msg.react('👍');
         return;
     }
+
+    if (msg.content.startsWith("!add")) {
+        user = msg.mentions.users.first();
+        if (user == undefined) {
+            msg.channel.send("Error getting mentioned user. Syntax: !add [username]");
+            return;
+        }
+
+        msg.react('👍');
+        generate_one_time(user);
+    }
 }
 
 // Send the code to the user if the user has not gotten it already
