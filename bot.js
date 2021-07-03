@@ -3,6 +3,7 @@ let Intss = new Discord.Intents(Discord.Intents.ALL);
 const client = new Discord.Client({ws: { intents: Intss }});
 const https = require('https');
 const fs = require('fs');
+const url = require('url');
 const random_string = require('@supercharge/strings');
 
 let role = null;
@@ -11,6 +12,31 @@ const reset_counted_users = {
     "isLocked": true,
     "users": []
 }
+
+process.on('SIGTERM', async (code) => {
+    let file = JSON.parse(fs.readFileSync("counted_users.json"));
+
+    if (file["isLocked"]) { process.exit(); }
+    let guild = null;
+    for (const guildId of client.guilds.cache.keys()) {
+        guild = client.guilds.cache.get(guildId);
+        break;
+    }
+
+    if (guild) {
+        for (const channelId of guild.channels.cache.keys()) {
+            const channel = guild.channels.cache.get(channelId)
+            if (channel.name.localeCompare(process.env.MANAGE_BOT_CHANNEL) == 0) {
+                await channel.send("Restart detected with ongoing vote, dumping file");
+                await channel.send(new Discord.MessageAttachment('counted_users.json', 'users.json'));
+                process.exit();
+            }
+        }
+    }
+
+    process.exit();
+});
+
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -124,6 +150,22 @@ function handleManageBot(msg) {
         generate_one_time(user);
 
         return;
+    }
+
+    if (msg.content.startsWith("!upload")) {
+        if (msg.attachments.first()) {
+            getUploadedFile(msg.attachments.first().url, result => {
+                if (result == null) {
+                    msg.channel.send("Failed to download file!");
+                    return;
+                }
+                let uploaded = JSON.parse(result);
+                fs.writeFileSync("counted_users.json", JSON.stringify(uploaded, null, 2));
+
+                msg.react('👍');
+                return;
+            });
+        }
     }
 }
 
@@ -405,4 +447,26 @@ function getSrcPBs(srcId, completion) {
     });
 
     pbsRequest.end();
+}
+
+function getUploadedFile(file_url, completion) {
+    let options = url.parse(file_url);
+    const redirectRequest = https.request(options, r => {
+        let data = '';
+        r.on('data', (chunk) => {
+            data += chunk;
+        });
+
+        r.on('end', () => {
+            completion(data);
+        });
+
+    });
+
+    // request error
+    redirectRequest.on('error', error => {
+        completion(null);
+    });
+
+    redirectRequest.end();
 }
