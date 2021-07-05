@@ -61,11 +61,13 @@ client.on('ready', () => {
                 }
             });
 
-        // find runner-voting channel and race-voting
+        // find runner-voting channel and race-voting (and role-assign)
         for (const channelId of guild.channels.cache.keys()) {
             const channel = guild.channels.cache.get(channelId)
             if (channel.name.localeCompare(process.env.RUNNER_VOTING_CHANNEL) == 0 || channel.name.localeCompare(process.env.RACE_VOTING_CHANNEL) == 0) {
                 reactToOldMessagesIn(channel)
+            } else if (channel.name.localeCompare(process.env.ROLE_ASSIGN_CHANNEL) == 0) {
+                removeOldCommands(channel);
             }
         }
     }
@@ -294,6 +296,7 @@ function handleRoleMessage(msg) {
                     msg.react('👍');
 
                     console.log('Succesfully assigned the "Runner" role to ' + realDiscordHandle + '!');
+                    msg.delete({ timeout: 10000 });
 
                 // no SMO runs found error
                 } else {
@@ -305,6 +308,28 @@ function handleRoleMessage(msg) {
             });
         });
     });
+}
+
+function removeOldCommands(channel) {
+    channel.messages.fetch()
+        .then(messages => {
+            for (const messageData of messages) {
+                try {
+                    let msg = messageData[1];
+
+                    if (msg.content.startsWith("!role")) {
+                        msg.delete();
+                    }
+                } catch (error) {
+                    console.log("Error trying to delete message " + messageData);
+                    console.log(error);
+                }
+            }
+        })
+        .catch(error => {
+            console.log("Error when fetching messages from channel #" + channel.name + ":");
+            console.log(error);
+        });
 }
 
 function handleVoteReaction(reaction) {
