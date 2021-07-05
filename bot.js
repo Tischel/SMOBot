@@ -7,6 +7,9 @@ const url = require('url');
 const random_string = require('@supercharge/strings');
 
 let role = null;
+let racer_role = null;
+let bingo_role = null;
+let darker_role = null;
 
 const reset_counted_users = {
     "isLocked": true,
@@ -56,7 +59,12 @@ client.on('ready', () => {
                     const r = roles.cache.get(roleId);
                     if (r.name.localeCompare(process.env.ROLE_NAME) == 0) {
                         role = r;
-                        break;
+                    } else if (r.name.localeCompare(process.env.RACER_ROLE_NAME) == 0) {
+                        racer_role = r;
+                    } else if (r.name.localeCompare(process.env.BINGO_ROLE_NAME) == 0) {
+                        bingo_role = r;
+                    } else if (r.name.localeCompare(process.env.DARKER_ROLE_NAME) == 0) {
+                        darker_role = r;
                     }
                 }
             });
@@ -198,16 +206,80 @@ function generate_one_time(user) {
 function generate_code() { return random_string.random(16); }
 
 function handleRoleMessage(msg) {
-
-    // only !role command available
-    if (!msg.content.startsWith('!role')) {
-        msg.delete();
+    if (msg.content.startsWith('!runner')) {
+        handleRunnerAssign(msg);
         return;
     }
 
+    const realDiscordHandle = (msg.author.username + "#" + msg.author.discriminator);
+    if (msg.content.startsWith('!racer')) {
+        for (const roleId of msg.member.roles.cache.keys()) {
+            if (roleId.localeCompare(racer_role.id) == 0) {
+                msg.member.roles.remove(racer_role);
+                msg.react('👍');
+
+                console.log('Succesfully removed the "Racer" role from ' + realDiscordHandle + '!');
+                msg.delete({ timeout: 10000 });
+                return;
+            }
+        }
+
+        msg.member.roles.add(racer_role);
+        msg.react('👍');
+
+        console.log('Succesfully assigned the "Racer" role to ' + realDiscordHandle + '!');
+        msg.delete({ timeout: 10000 });
+        return;
+    }
+
+    if (msg.content.startsWith('!bingo')) {
+        for (const roleId of msg.member.roles.cache.keys()) {
+            if (roleId.localeCompare(bingo_role.id) == 0) {
+                msg.member.roles.remove(bingo_role);
+                msg.react('👍');
+
+                console.log('Succesfully removed the "Bingo" role from ' + realDiscordHandle + '!');
+                msg.delete({ timeout: 10000 });
+                return;
+            }
+        }
+
+        msg.member.roles.add(bingo_role);
+        msg.react('👍');
+
+        console.log('Succesfully assigned the "Bingo" role to ' + realDiscordHandle + '!');
+        msg.delete({ timeout: 10000 });
+        return;
+    }
+
+    if (msg.content.startsWith('!darker')) {
+        for (const roleId of msg.member.roles.cache.keys()) {
+            if (roleId.localeCompare(darker_role.id) == 0) {
+                msg.member.roles.remove(darker_role);
+                msg.react('👍');
+
+                console.log('Succesfully removed the "Darker Side Racer" role from ' + realDiscordHandle + '!');
+                msg.delete({ timeout: 10000 });
+                return;
+            }
+        }
+
+        msg.member.roles.add(darker_role);
+        msg.react('👍');
+
+        console.log('Succesfully assigned the "Darker Side Racer" role to ' + realDiscordHandle + '!');
+        msg.delete({ timeout: 10000 });
+        return;
+    }
+
+    msg.delete();
+    return;
+}
+
+function handleRunnerAssign(msg) {
     // validate command
-    if (msg.content.length < 7) {
-        msg.author.send('Invalid speedrun.com username! The !role command format is: "!role USERNAME".');
+    if (msg.content.length < 9) {
+        msg.author.send('Invalid speedrun.com username! The !runner command format is: "!runner USERNAME".');
         msg.delete();
         return;
     }
@@ -220,7 +292,7 @@ function handleRoleMessage(msg) {
         }
     }
 
-    let srcName = msg.content.substring(6, msg.content.length);
+    let srcName = msg.content.substring(8, msg.content.length);
 
     // get discord handle from src profile
     getDiscordHandle(srcName, discordHandle => {
@@ -317,7 +389,10 @@ function removeOldCommands(channel) {
                 try {
                     let msg = messageData[1];
 
-                    if (msg.content.startsWith("!role")) {
+                    if (msg.content.startsWith("!runner") || 
+                    msg.content.startsWith("!bingo") || 
+                    msg.content.startsWith("!racer") || 
+                    msg.content.startsWith("!darker")) {
                         msg.delete();
                     }
                 } catch (error) {
