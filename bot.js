@@ -211,68 +211,43 @@ function handleRoleMessage(msg) {
         return;
     }
 
-    const realDiscordHandle = (msg.author.username + "#" + msg.author.discriminator);
     if (msg.content.startsWith('!racer')) {
-        for (const roleId of msg.member.roles.cache.keys()) {
-            if (roleId.localeCompare(racer_role.id) == 0) {
-                msg.member.roles.remove(racer_role);
-                msg.react('👍');
-
-                console.log('Succesfully removed the "Racer" role from ' + realDiscordHandle + '!');
-                msg.delete({ timeout: 10000 });
-                return;
-            }
-        }
-
-        msg.member.roles.add(racer_role);
-        msg.react('👍');
-
-        console.log('Succesfully assigned the "Racer" role to ' + realDiscordHandle + '!');
-        msg.delete({ timeout: 10000 });
+        giveRole(msg, racer_role);
         return;
     }
 
     if (msg.content.startsWith('!bingo')) {
-        for (const roleId of msg.member.roles.cache.keys()) {
-            if (roleId.localeCompare(bingo_role.id) == 0) {
-                msg.member.roles.remove(bingo_role);
-                msg.react('👍');
-
-                console.log('Succesfully removed the "Bingo" role from ' + realDiscordHandle + '!');
-                msg.delete({ timeout: 10000 });
-                return;
-            }
-        }
-
-        msg.member.roles.add(bingo_role);
-        msg.react('👍');
-
-        console.log('Succesfully assigned the "Bingo" role to ' + realDiscordHandle + '!');
-        msg.delete({ timeout: 10000 });
+        giveRole(msg, bingo_role);
         return;
     }
 
     if (msg.content.startsWith('!darker')) {
-        for (const roleId of msg.member.roles.cache.keys()) {
-            if (roleId.localeCompare(darker_role.id) == 0) {
-                msg.member.roles.remove(darker_role);
-                msg.react('👍');
-
-                console.log('Succesfully removed the "Darker Side Racer" role from ' + realDiscordHandle + '!');
-                msg.delete({ timeout: 10000 });
-                return;
-            }
-        }
-
-        msg.member.roles.add(darker_role);
-        msg.react('👍');
-
-        console.log('Succesfully assigned the "Darker Side Racer" role to ' + realDiscordHandle + '!');
-        msg.delete({ timeout: 10000 });
+        giveRole(msg, darker_role);
         return;
     }
 
     msg.delete();
+    return;
+}
+
+function giveRole(msg, role) {
+    const realDiscordHandle = (msg.author.username + "#" + msg.author.discriminator);
+    for (const roleId of msg.member.roles.cache.keys()) {
+        if (roleId.localeCompare(role.id) == 0) {
+            msg.member.roles.remove(role);
+            msg.react('👍');
+
+            console.log('Succesfully removed the "' + role.name + '" role from ' + realDiscordHandle + '!');
+            msg.delete({ timeout: 10000 });
+            return;
+        }
+    }
+
+    msg.member.roles.add(role);
+    msg.react('👍');
+
+    console.log('Succesfully assigned the "' + role.name + '" role to ' + realDiscordHandle + '!');
+    msg.delete({ timeout: 10000 });
     return;
 }
 
